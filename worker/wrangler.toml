@@ -1,0 +1,7 @@
+name = "richter-automation"
+main = "index.js"
+compatibility_date = "2024-09-23"
+account_id = "6c58dfa2a4b901d6f1031dbb1074175a"
+
+[vars]
+SILVIO_EMAIL = "ga-richter@freenet.de"

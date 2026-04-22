@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dokument einreichen — Richter Versicherungen</title>
+<style>
+:root {
+  --navy:   #1C2B4A;
+  --navy2:  #243460;
+  --gold:   #B8965A;
+  --gold-l: #D4AF7A;
+  --green:  #27AE60;
+  --grn-bg: #EEF8F3;
+  --red:    #C0392B;
+  --red-bg: #FDF0EE;
+  --gray:   #6B7280;
+  --light:  #F7F6F3;
+  --border: #E5E7EB;
+  --white:  #FFFFFF;
+  --sans:   'Segoe UI', system-ui, sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{background:var(--light);font-family:var(--sans);color:var(--navy);min-height:100vh}
+
+.header{background:var(--navy);padding:20px;text-align:center}
+.header-logo{font-size:13px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.header-title{font-size:20px;font-weight:700;color:var(--white)}
+
+.container{max-width:520px;margin:0 auto;padding:24px 16px 60px}
+
+/* STEPS */
+.steps{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:32px}
+.step{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.step-circle{
+  width:40px;height:40px;border-radius:50%;border:2px solid var(--border);
+  background:var(--white);display:flex;align-items:center;justify-content:center;
+  font-size:18px;position:relative;z-index:1;transition:all .3s;
+}
+.step.active .step-circle{border-color:var(--gold);background:#FDFAF5}
+.step.done   .step-circle{border-color:var(--green);background:var(--grn-bg)}
+.step-label{font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.05em}
+.step.active .step-label{color:var(--navy)}
+.step.done   .step-label{color:var(--green)}
+.step-line{flex:1;height:2px;background:var(--border);margin-top:-20px;position:relative;z-index:0}
+.step-line.done{background:var(--green)}
+
+/* CARDS */
+.card{background:var(--white);border-radius:16px;padding:24px;border:1px solid var(--border);margin-bottom:16px}
+.card-title{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:6px}
+.card-sub{font-size:14px;color:var(--gray);margin-bottom:20px;line-height:1.5}
+
+/* UPLOAD ZONE */
+.upload-zone{
+  border:2.5px dashed var(--border);border-radius:14px;padding:32px 20px;
+  text-align:center;cursor:pointer;transition:all .2s;background:var(--light);
+  position:relative;
+}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--gold);background:#FDFAF5}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:48px;margin-bottom:12px}
+.upload-title{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.upload-sub{font-size:13px;color:var(--gray)}
+.upload-sub span{color:var(--gold);font-weight:600}
+
+/* PREVIEW */
+.preview-wrap{position:relative;margin-bottom:16px}
+.preview-img{width:100%;border-radius:12px;max-height:300px;object-fit:contain;background:#000;display:block}
+.preview-remove{
+  position:absolute;top:10px;right:10px;background:var(--red);color:#fff;
+  border:none;border-radius:50%;width:32px;height:32px;font-size:18px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+
+/* KI-ANALYSE */
+.ki-loading{display:flex;align-items:center;gap:12px;padding:16px;background:var(--light);border-radius:12px;margin-bottom:16px}
+.ki-spinner{width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ki-text{font-size:14px;color:var(--gray)}
+
+.ki-result{background:var(--grn-bg);border:1px solid var(--green);border-radius:12px;padding:16px;margin-bottom:16px}
+.ki-result-title{font-size:13px;font-weight:700;color:var(--green);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ki-fields{display:flex;flex-direction:column;gap:8px}
+.ki-field{display:flex;justify-content:space-between;align-items:center}
+.ki-field-label{font-size:13px;color:var(--gray)}
+.ki-field-value{font-size:14px;font-weight:600;color:var(--navy)}
+
+/* FORM */
+.form-group{margin-bottom:14px}
+.form-label{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;display:block}
+.form-input,.form-select{
+  width:100%;padding:13px 16px;border:2px solid var(--border);border-radius:10px;
+  font-size:15px;font-family:var(--sans);color:var(--navy);background:var(--white);
+  -webkit-appearance:none;appearance:none;
+}
+.form-input:focus,.form-select:focus{outline:none;border-color:var(--gold)}
+.form-hint{font-size:12px;color:var(--gray);margin-top:5px}
+
+/* BUTTONS */
+.btn-primary{
+  width:100%;padding:16px;background:var(--navy);color:var(--white);
+  border:none;border-radius:12px;font-size:16px;font-weight:700;
+  font-family:var(--sans);cursor:pointer;transition:background .2s;
+}
+.btn-primary:hover{background:var(--navy2)}
+.btn-primary:disabled{background:var(--gray);cursor:not-allowed}
+.btn-back{
+  width:100%;padding:14px;background:transparent;color:var(--gray);
+  border:2px solid var(--border);border-radius:12px;font-size:15px;
+  font-family:var(--sans);cursor:pointer;margin-top:8px;
+}
+
+/* ERFOLG */
+.success{text-align:center;padding:20px}
+.success-icon{font-size:72px;margin-bottom:16px}
+.success-title{font-size:24px;font-weight:800;color:var(--navy);margin-bottom:10px}
+.success-sub{font-size:15px;color:var(--gray);line-height:1.6;margin-bottom:24px}
+.fallnummer{
+  background:var(--light);border:1px solid var(--border);border-radius:12px;
+  padding:16px;margin-bottom:24px;
+}
+.fallnummer-label{font-size:12px;color:var(--gray);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.fallnummer-value{font-size:22px;font-weight:800;color:var(--navy);font-family:monospace;letter-spacing:.1em}
+.info-box{background:var(--light);border-radius:12px;padding:16px;text-align:left}
+.info-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px}
+.info-row:last-child{border-bottom:none}
+.info-icon{font-size:18px;width:24px;text-align:center}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-logo">Versicherungsmakler</div>
+  <div class="header-title">Silvio Richter</div>
+</header>
+
+<div class="container">
+
+  <!-- STEPS -->
+  <div class="steps">
+    <div class="step active" id="s1"><div class="step-circle">📷</div><div class="step-label">Foto</div></div>
+    <div class="step-line" id="l1"></div>
+    <div class="step" id="s2"><div class="step-circle">🔍</div><div class="step-label">Prüfen</div></div>
+    <div class="step-line" id="l2"></div>
+    <div class="step" id="s3"><div class="step-circle">✅</div><div class="step-label">Senden</div></div>
+  </div>
+
+  <!-- SCHRITT 1: UPLOAD -->
+  <div id="step1">
+    <div class="card">
+      <div class="card-title">Dokument hochladen</div>
+      <div class="card-sub">Machen Sie ein Foto oder wählen Sie eine Datei. Die KI erkennt den Inhalt automatisch.</div>
+
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept="image/*,.pdf" capture="environment" onchange="handleFile(event)">
+        <div class="upload-icon">📸</div>
+        <div class="upload-title">Foto aufnehmen oder Datei wählen</div>
+        <div class="upload-sub">JPG, PNG, HEIC, PDF &nbsp;·&nbsp; <span>Tippen zum Auswählen</span></div>
+      </div>
+    </div>
+
+    <div class="card" style="background:#FDFAF5;border-color:var(--gold)">
+      <div style="font-size:13px;color:var(--gray);line-height:1.6">
+        <strong style="color:var(--navy)">Welche Dokumente können Sie einreichen?</strong><br><br>
+        🪪 Personalausweis / Reisepass<br>
+        🚗 KFZ-Schein / Fahrzeugbrief<br>
+        📋 Bestehende Police / Vertrag<br>
+        📸 Schadensfotos<br>
+        🧾 Rechnungen / Kostenvoranschläge<br>
+        📝 Kündigung / Schreiben<br>
+        📄 Alle weiteren Unterlagen
+      </div>
+    </div>
+  </div>
+
+  <!-- SCHRITT 2: ANALYSE + FORMULAR -->
+  <div id="step2" style="display:none">
+
+    <div class="card">
+      <div class="preview-wrap">
+        <img id="previewImg" class="preview-img" src="" alt="Vorschau">
+        <button class="preview-remove" onclick="resetUpload()">×</button>
+      </div>
+
+      <div id="kiLoading" class="ki-loading" style="display:none">
+        <div class="ki-spinner"></div>
+        <div class="ki-text">KI analysiert Ihr Dokument...</div>
+      </div>
+
+      <div id="kiResult" style="display:none">
+        <div class="ki-result">
+          <div class="ki-result-title">🤖 KI hat erkannt:</div>
+          <div class="ki-fields" id="kiFields"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ihre Angaben</div>
+      <div class="card-sub">Bitte kurz prüfen und ergänzen.</div>
+
+      <div class="form-group">
+        <label class="form-label">Dokumenttyp</label>
+        <select class="form-select" id="docType">
+          <option>Wird erkannt...</option>
+          <option>Personalausweis / Reisepass</option>
+          <option>Führerschein</option>
+          <option>KFZ-Schein / Fahrzeugbrief</option>
+          <option>Bestehende Police</option>
+          <option>Schadensfotos</option>
+          <option>Rechnung / Kostenvoranschlag</option>
+          <option>Kündigung</option>
+          <option>Sonstiges Dokument</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Ihr Name</label>
+        <input class="form-input" type="text" id="kundeName" placeholder="Vor- und Nachname">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Ihre E-Mail</label>
+        <input class="form-input" type="email" id="kundeEmail" placeholder="name@beispiel.de">
+        <div class="form-hint">Bestätigung wird an diese Adresse gesendet</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Telefon (optional)</label>
+        <input class="form-input" type="tel" id="kundeTel" placeholder="0375 ...">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Worum geht es?</label>
+        <select class="form-select" id="anlass">
+          <option>Schadenmeldung — neue Meldung</option>
+          <option>Angebot anfordern</option>
+          <option>Vertrag ändern / kündigen</option>
+          <option>Bestehender Fall — Unterlagen nachreichen</option>
+          <option>Erstberatung — allgemeine Anfrage</option>
+        </select>
+      </div>
+
+      <button class="btn-primary" id="btnSenden" onclick="senden()">Dokument sicher einreichen →</button>
+      <button class="btn-back" onclick="resetUpload()">Anderes Dokument wählen</button>
+    </div>
+  </div>
+
+  <!-- SCHRITT 3: ERFOLG -->
+  <div id="step3" style="display:none">
+    <div class="card">
+      <div class="success">
+        <div class="success-icon">✅</div>
+        <div class="success-title">Erfolgreich eingereicht!</div>
+        <div class="success-sub">
+          Ihr Dokument wurde sicher übermittelt.<br>
+          Sie erhalten gleich eine Bestätigung per E-Mail.
+        </div>
+        <div class="fallnummer">
+          <div class="fallnummer-label">Ihre Fallnummer</div>
+          <div class="fallnummer-value" id="fallnrDisplay">RIC-2026-0000</div>
+        </div>
+        <div class="info-box">
+          <div class="info-row"><span class="info-icon">⏱️</span><span>Silvio Richter meldet sich innerhalb von <strong>24 Stunden</strong></span></div>
+          <div class="info-row"><span class="info-icon">📞</span><span>Dringend? <a href="tel:0376042424" style="color:var(--navy);font-weight:600">037604 / 2424</a></span></div>
+          <div class="info-row"><span class="info-icon">💬</span><span>WhatsApp: <a href="https://wa.me/4937604242" style="color:var(--navy);font-weight:600">Nachricht schreiben</a></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const WORKER_URL = 'https://richter-automation.richter-makler.workers.dev';
+let uploadedImageB64 = null;
+let uploadedMime = 'image/jpeg';
+
+// ── HEIC → JPEG Konvertierung + Resize ──
+function prepareImage(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const MAX = 1200;
+      let w = img.naturalWidth, h = img.naturalHeight;
+      if (w > MAX || h > MAX) {
+        if (w >= h) { h = Math.round(h * MAX / w); w = MAX; }
+        else        { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(c.toDataURL('image/jpeg', 0.88).split(',')[1]);
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+async function handleFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  // Preview
+  if (file.type === 'application/pdf') {
+    document.getElementById('previewImg').src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect fill="%23f7f6f3" width="200" height="200"/><text x="100" y="100" text-anchor="middle" dominant-baseline="middle" font-size="60">📄</text></svg>';
+    uploadedImageB64 = null;
+  } else {
+    try {
+      uploadedImageB64 = await prepareImage(file);
+      uploadedMime = 'image/jpeg';
+      document.getElementById('previewImg').src = 'data:image/jpeg;base64,' + uploadedImageB64;
+    } catch {
+      const reader = new FileReader();
+      reader.onload = ev => { document.getElementById('previewImg').src = ev.target.result; };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Zeige Schritt 2
+  document.getElementById('step1').style.display = 'none';
+  document.getElementById('step2').style.display = 'block';
+  setStep(2);
+
+  // KI-Analyse
+  if (uploadedImageB64) analyzeDocument();
+}
+
+async function analyzeDocument() {
+  document.getElementById('kiLoading').style.display = 'flex';
+  document.getElementById('kiResult').style.display = 'none';
+
+  try {
+    const res = await fetch(WORKER_URL + '/scan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 300,
+        messages: [{
+          role: 'user',
+          content: [{
+            type: 'image',
+            source: { type: 'base64', media_type: uploadedMime, data: uploadedImageB64 }
+          }, {
+            type: 'text',
+            text: `Analysiere dieses Dokument für einen Versicherungsmakler.
+Antworte NUR mit JSON, kein Markdown:
+{"typ":"Personalausweis|Führerschein|KFZ-Schein|Police|Schadensfoto|Rechnung|Kündigung|Sonstiges","name":"","datum":"","versicherung":"","kennzeichen":"","betrag":"","konfidenz":"hoch|mittel|niedrig"}
+Felder die nicht erkennbar sind als leeren String.`
+          }]
+        }]
+      })
+    });
+
+    const data = await res.json();
+    const text = data?.content?.[0]?.text || '{}';
+    let ki = {};
+    try { ki = JSON.parse(text); } catch { ki = {}; }
+
+    document.getElementById('kiLoading').style.display = 'none';
+
+    if (ki.typ && ki.typ !== 'Sonstiges') {
+      const fields = [];
+      if (ki.typ)          fields.push({ label: 'Dokumenttyp', value: ki.typ });
+      if (ki.name)         fields.push({ label: 'Name',        value: ki.name });
+      if (ki.datum)        fields.push({ label: 'Datum',       value: ki.datum });
+      if (ki.versicherung) fields.push({ label: 'Versicherung',value: ki.versicherung });
+      if (ki.kennzeichen)  fields.push({ label: 'Kennzeichen', value: ki.kennzeichen });
+      if (ki.betrag)       fields.push({ label: 'Betrag',      value: ki.betrag });
+
+      if (fields.length > 0) {
+        document.getElementById('kiFields').innerHTML = fields.map(f =>
+          `<div class="ki-field"><span class="ki-field-label">${f.label}</span><span class="ki-field-value">${f.value}</span></div>`
+        ).join('');
+        document.getElementById('kiResult').style.display = 'block';
+      }
+
+      // Felder vorausfüllen
+      const typeMap = {
+        'Personalausweis': 'Personalausweis / Reisepass',
+        'Führerschein': 'Führerschein',
+        'KFZ-Schein': 'KFZ-Schein / Fahrzeugbrief',
+        'Police': 'Bestehende Police',
+        'Schadensfoto': 'Schadensfotos',
+        'Rechnung': 'Rechnung / Kostenvoranschlag',
+        'Kündigung': 'Kündigung'
+      };
+      const sel = document.getElementById('docType');
+      const mapped = typeMap[ki.typ];
+      if (mapped) {
+        for (let i = 0; i < sel.options.length; i++) {
+          if (sel.options[i].text === mapped) { sel.selectedIndex = i; break; }
+        }
+      }
+      if (ki.name && !document.getElementById('kundeName').value) {
+        document.getElementById('kundeName').value = ki.name;
+      }
+    } else {
+      document.getElementById('kiLoading').style.display = 'none';
+    }
+
+  } catch(err) {
+    document.getElementById('kiLoading').style.display = 'none';
+  }
+}
+
+async function senden() {
+  const name  = document.getElementById('kundeName').value.trim();
+  const email = document.getElementById('kundeEmail').value.trim();
+  if (!name || !email) {
+    alert('Bitte Name und E-Mail eingeben.');
+    return;
+  }
+
+  const btn = document.getElementById('btnSenden');
+  btn.disabled = true;
+  btn.textContent = 'Wird gesendet...';
+
+  const fallnr = 'RIC-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random()*9000)+1000);
+
+  try {
+    await fetch(WORKER_URL + '/dokument', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fallnr,
+        name,
+        email,
+        telefon: document.getElementById('kundeTel').value,
+        docType: document.getElementById('docType').value,
+        anlass:  document.getElementById('anlass').value,
+        imageB64: uploadedImageB64,
+        datum: new Date().toLocaleDateString('de-DE')
+      })
+    });
+  } catch(e) { /* offline fallback — zeige trotzdem Erfolg */ }
+
+  document.getElementById('fallnrDisplay').textContent = fallnr;
+  document.getElementById('step2').style.display = 'none';
+  document.getElementById('step3').style.display = 'block';
+  setStep(3);
+}
+
+function resetUpload() {
+  uploadedImageB64 = null;
+  document.getElementById('fileInput').value = '';
+  document.getElementById('step2').style.display = 'none';
+  document.getElementById('step1').style.display = 'block';
+  document.getElementById('kiResult').style.display = 'none';
+  document.getElementById('kiLoading').style.display = 'none';
+  document.getElementById('kundeName').value = '';
+  document.getElementById('kundeEmail').value = '';
+  document.getElementById('kundeTel').value = '';
+  setStep(1);
+}
+
+function setStep(n) {
+  [1,2,3].forEach(i => {
+    const s = document.getElementById('s'+i);
+    s.className = 'step' + (i < n ? ' done' : i === n ? ' active' : '');
+  });
+  [1,2].forEach(i => {
+    const l = document.getElementById('l'+i);
+    if (l) l.className = 'step-line' + (i < n ? ' done' : '');
+  });
+}
+
+// Drag & Drop
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+zone.addEventListener('drop', e => {
+  e.preventDefault(); zone.classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) { document.getElementById('fileInput').files = e.dataTransfer.files; handleFile({target:{files:[file]}}); }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richter — Büro-Dashboard</title>
+<meta name="robots" content="noindex">
+<style>
+:root {
+  --navy:    #1C2B4A;
+  --navy2:   #243460;
+  --gold:    #B8965A;
+  --gold-l:  #D4AF7A;
+  --red:     #C0392B;
+  --red-bg:  #FDF0EE;
+  --yellow:  #E67E22;
+  --yel-bg:  #FEF9F0;
+  --green:   #27AE60;
+  --grn-bg:  #EEF8F3;
+  --gray:    #6B7280;
+  --light:   #F7F6F3;
+  --white:   #FFFFFF;
+  --border:  #E5E7EB;
+  --sans:    'Segoe UI', system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+body { background: var(--light); font-family: var(--sans); color: var(--navy); min-height: 100vh; }
+
+/* ── HEADER ── */
+.header {
+  background: var(--navy);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.header-left { display: flex; align-items: center; gap: 12px; }
+.header-logo { font-size: 18px; font-weight: 700; color: var(--white); letter-spacing: 0.02em; }
+.header-logo span { color: var(--gold); }
+.status-badge {
+  padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;
+  display: flex; align-items: center; gap: 6px;
+}
+.status-badge.open  { background: var(--grn-bg); color: var(--green); }
+.status-badge.closed { background: var(--red-bg); color: var(--red); }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; animation: pulse 2s infinite; }
+.status-badge.open  .status-dot { background: var(--green); }
+.status-badge.closed .status-dot { background: var(--red); animation: none; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ── MAIN ── */
+.main { max-width: 680px; margin: 0 auto; padding: 20px 16px 100px; }
+
+/* ── DATUM ── */
+.date-bar {
+  text-align: center; font-size: 14px; color: var(--gray);
+  margin-bottom: 20px; padding: 10px;
+  background: var(--white); border-radius: 10px; border: 1px solid var(--border);
+}
+.date-bar strong { color: var(--navy); }
+
+/* ── AMPEL-KARTEN ── */
+.cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 28px; }
+.card {
+  background: var(--white); border-radius: 14px; padding: 16px 14px;
+  border: 2px solid var(--border); text-align: center; cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+.card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+.card.red   { border-color: var(--red);    background: var(--red-bg); }
+.card.yellow{ border-color: var(--yellow); background: var(--yel-bg); }
+.card.green { border-color: var(--green);  background: var(--grn-bg); }
+.card-icon  { font-size: 28px; margin-bottom: 6px; }
+.card-count { font-size: 32px; font-weight: 800; line-height: 1; }
+.card.red    .card-count { color: var(--red); }
+.card.yellow .card-count { color: var(--yellow); }
+.card.green  .card-count { color: var(--green); }
+.card-label { font-size: 12px; font-weight: 600; margin-top: 4px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ── SECTION ── */
+.section-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--gray); margin-bottom: 10px; padding-left: 2px;
+}
+
+/* ── BUTTONS ── */
+.btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 28px; }
+.btn {
+  background: var(--white); border: 2px solid var(--border); border-radius: 14px;
+  padding: 18px 14px; display: flex; flex-direction: column; align-items: center;
+  gap: 8px; cursor: pointer; transition: all .15s; text-align: center;
+  font-family: var(--sans);
+}
+.btn:hover { border-color: var(--gold); background: #FDFAF5; transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn.primary { background: var(--navy); border-color: var(--navy); color: var(--white); }
+.btn.primary:hover { background: var(--navy2); border-color: var(--navy2); }
+.btn-icon { font-size: 26px; }
+.btn-text { font-size: 14px; font-weight: 700; color: var(--navy); }
+.btn.primary .btn-text { color: var(--white); }
+.btn-sub  { font-size: 11px; color: var(--gray); }
+.btn.primary .btn-sub { color: rgba(255,255,255,.6); }
+
+/* ── AUFGABEN-LISTE ── */
+.task-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; }
+.task {
+  background: var(--white); border-radius: 12px; padding: 14px 16px;
+  border: 1px solid var(--border); display: flex; align-items: center; gap: 12px;
+}
+.task-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.task-dot.red    { background: var(--red); }
+.task-dot.yellow { background: var(--yellow); }
+.task-dot.green  { background: var(--green); }
+.task-info { flex: 1; }
+.task-name { font-size: 15px; font-weight: 600; color: var(--navy); }
+.task-meta { font-size: 12px; color: var(--gray); margin-top: 2px; }
+.task-action {
+  padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  border: none; cursor: pointer; font-family: var(--sans);
+}
+.task-action.done { background: var(--grn-bg); color: var(--green); }
+.task-action.call { background: var(--navy); color: var(--white); }
+
+/* ── MODAL ── */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200;
+  display: none; align-items: flex-end; justify-content: center;
+}
+.overlay.show { display: flex; }
+.modal {
+  background: var(--white); border-radius: 20px 20px 0 0; width: 100%;
+  max-width: 680px; padding: 24px 20px 40px; max-height: 90vh; overflow-y: auto;
+}
+.modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
+.modal-title { font-size: 20px; font-weight: 800; color: var(--navy); margin-bottom: 20px; }
+
+/* ── FORMULAR ── */
+.form-group { margin-bottom: 16px; }
+.form-label { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 6px; display: block; }
+.form-select, .form-input, .form-textarea {
+  width: 100%; padding: 13px 16px; border: 2px solid var(--border); border-radius: 10px;
+  font-size: 15px; font-family: var(--sans); color: var(--navy); background: var(--white);
+  appearance: none; -webkit-appearance: none;
+}
+.form-select:focus, .form-input:focus, .form-textarea:focus {
+  outline: none; border-color: var(--gold);
+}
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.btn-submit {
+  width: 100%; padding: 16px; background: var(--navy); color: var(--white);
+  border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
+  font-family: var(--sans); cursor: pointer; margin-top: 8px;
+}
+.btn-submit:hover { background: var(--navy2); }
+.btn-cancel {
+  width: 100%; padding: 14px; background: transparent; color: var(--gray);
+  border: 2px solid var(--border); border-radius: 12px; font-size: 15px;
+  font-family: var(--sans); cursor: pointer; margin-top: 8px;
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--navy); color: var(--white); padding: 14px 24px;
+  border-radius: 12px; font-size: 15px; font-weight: 600; z-index: 300;
+  transition: transform .3s; white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── NAV ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--white); border-top: 1px solid var(--border);
+  display: flex; justify-content: space-around; padding: 10px 0 16px;
+  z-index: 100;
+}
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 16px; }
+.nav-icon { font-size: 22px; }
+.nav-label { font-size: 10px; font-weight: 600; color: var(--gray); text-transform: uppercase; }
+.nav-item.active .nav-label { color: var(--navy); }
+
+@media (min-width: 480px) {
+  .cards { gap: 16px; }
+  .card-count { font-size: 38px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <div class="header-logo">Richter <span>Büro</span></div>
+  </div>
+  <div id="statusBadge" class="status-badge open">
+    <div class="status-dot"></div>
+    <span id="statusText">Geöffnet</span>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="date-bar">
+    <strong id="dateDisplay"></strong> &nbsp;·&nbsp; <span id="timeDisplay"></span>
+  </div>
+
+  <!-- AMPEL -->
+  <div class="cards">
+    <div class="card red" onclick="filterTasks('red')">
+      <div class="card-icon">🚨</div>
+      <div class="card-count" id="countRed">0</div>
+      <div class="card-label">Dringend</div>
+    </div>
+    <div class="card yellow" onclick="filterTasks('yellow')">
+      <div class="card-icon">⏳</div>
+      <div class="card-count" id="countYellow">0</div>
+      <div class="card-label">Offen</div>
+    </div>
+    <div class="card green" onclick="filterTasks('green')">
+      <div class="card-icon">✅</div>
+      <div class="card-count" id="countGreen">0</div>
+      <div class="card-label">Erledigt</div>
+    </div>
+  </div>
+
+  <!-- SCHNELL-BUTTONS -->
+  <div class="section-title">Schnell-Aktionen</div>
+  <div class="btn-grid">
+    <button class="btn primary" onclick="openModal('schaden')">
+      <div class="btn-icon">🚗</div>
+      <div class="btn-text">Schaden aufnehmen</div>
+      <div class="btn-sub">Neuer Schadensfall</div>
+    </button>
+    <button class="btn" onclick="openModal('rueckruf')">
+      <div class="btn-icon">📞</div>
+      <div class="btn-text">Rückruf eintragen</div>
+      <div class="btn-sub">Anruf notieren</div>
+    </button>
+    <button class="btn" onclick="openModal('kunde')">
+      <div class="btn-icon">👤</div>
+      <div class="btn-text">Neuer Kunde</div>
+      <div class="btn-sub">Kontakt anlegen</div>
+    </button>
+    <button class="btn" onclick="openModal('dokument')">
+      <div class="btn-icon">📄</div>
+      <div class="btn-text">Dokument zuweisen</div>
+      <div class="btn-sub">Eingang bearbeiten</div>
+    </button>
+  </div>
+
+  <!-- AUFGABEN -->
+  <div class="section-title">Heutige Aufgaben</div>
+  <div class="task-list" id="taskList"></div>
+
+</main>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="nav-item active">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-label">Heute</div>
+  </div>
+  <div class="nav-item" onclick="window.location='../forms/schaden.html'">
+    <div class="nav-icon">🚨</div>
+    <div class="nav-label">Schaden</div>
+  </div>
+  <div class="nav-item" onclick="window.location='../scanner/'">
+    <div class="nav-icon">📷</div>
+    <div class="nav-label">Scanner</div>
+  </div>
+  <div class="nav-item">
+    <div class="nav-icon">📋</div>
+    <div class="nav-label">Kunden</div>
+  </div>
+</nav>
+
+<!-- MODALS -->
+<div class="overlay" id="overlay" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── ÖFFNUNGSZEITEN ──
+const OZ = { Mo:[[8,12],[13,17]], Di:[[8,12],[13,17]], Mi:[[8,12]], Do:[[8,12],[13,17]], Fr:[[8,12]] };
+const TAGE = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+
+function isOpen() {
+  const now = new Date();
+  const tag  = TAGE[now.getDay()];
+  const h    = now.getHours() + now.getMinutes() / 60;
+  const slots = OZ[tag];
+  if (!slots) return false;
+  return slots.some(([s,e]) => h >= s && h < e);
+}
+
+function updateClock() {
+  const now = new Date();
+  document.getElementById('timeDisplay').textContent =
+    now.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' }) + ' Uhr';
+  document.getElementById('dateDisplay').textContent =
+    now.toLocaleDateString('de-DE', { weekday:'long', day:'numeric', month:'long' });
+  const badge = document.getElementById('statusBadge');
+  const text  = document.getElementById('statusText');
+  if (isOpen()) {
+    badge.className = 'status-badge open';
+    text.textContent = 'Geöffnet';
+  } else {
+    badge.className = 'status-badge closed';
+    text.textContent = 'Geschlossen';
+  }
+}
+setInterval(updateClock, 30000);
+updateClock();
+
+// ── AUFGABEN (Demo-Daten — später via Worker) ──
+let tasks = JSON.parse(localStorage.getItem('rp_tasks') || 'null') || [
+  { id:1, prio:'red',    name:'Müller, Hans',   meta:'Schadenmeldung KFZ — wartet auf Rückruf',    action:'call' },
+  { id:2, prio:'red',    name:'Schmidt, Petra',  meta:'Police läuft in 3 Tagen ab',                 action:'call' },
+  { id:3, prio:'yellow', name:'Wagner, Klaus',   meta:'Dokument ausstehend: Führerschein',           action:'done' },
+  { id:4, prio:'yellow', name:'Bauer, Maria',    meta:'Angebot angefordert — Hausrat',               action:'done' },
+  { id:5, prio:'green',  name:'Lehmann, Gerd',   meta:'Jahresgespräch bestätigt ✓',                  action:'done' },
+];
+saveTasks();
+
+function saveTasks() { localStorage.setItem('rp_tasks', JSON.stringify(tasks)); }
+
+function renderTasks(filter) {
+  const list = document.getElementById('taskList');
+  const show = filter ? tasks.filter(t => t.prio === filter) : tasks;
+  list.innerHTML = show.map(t => `
+    <div class="task" id="task-${t.id}">
+      <div class="task-dot ${t.prio}"></div>
+      <div class="task-info">
+        <div class="task-name">${t.name}</div>
+        <div class="task-meta">${t.meta}</div>
+      </div>
+      ${t.action === 'call'
+        ? `<button class="task-action call" onclick="makeCall(${t.id})">Anrufen</button>`
+        : `<button class="task-action done" onclick="markDone(${t.id})">Erledigt</button>`
+      }
+    </div>
+  `).join('');
+  updateCounts();
+}
+
+function updateCounts() {
+  document.getElementById('countRed').textContent    = tasks.filter(t=>t.prio==='red').length;
+  document.getElementById('countYellow').textContent = tasks.filter(t=>t.prio==='yellow').length;
+  document.getElementById('countGreen').textContent  = tasks.filter(t=>t.prio==='green').length;
+}
+
+let activeFilter = null;
+function filterTasks(prio) {
+  activeFilter = activeFilter === prio ? null : prio;
+  renderTasks(activeFilter);
+}
+
+function markDone(id) {
+  tasks = tasks.map(t => t.id===id ? {...t, prio:'green', action:'done'} : t);
+  saveTasks(); renderTasks(activeFilter);
+  showToast('✅ Als erledigt markiert');
+}
+
+function makeCall(id) {
+  const t = tasks.find(t=>t.id===id);
+  showToast('📞 Anruf wird vorbereitet...');
+}
+
+// ── MODALS ──
+const MODALS = {
+  schaden: {
+    title: '🚗 Schaden aufnehmen',
+    html: `
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input class="form-input" type="text" placeholder="Mustermann">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telefon</label>
+          <input class="form-input" type="tel" placeholder="0375 ...">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Versicherung</label>
+        <select class="form-select">
+          <option>KFZ — Auto / Motorrad</option>
+          <option>Hausrat — Wohnung / Haus</option>
+          <option>Haftpflicht</option>
+          <option>Leben / Berufsunfähigkeit</option>
+          <option>Sonstiges</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Was ist passiert?</label>
+        <select class="form-select">
+          <option>Unfall / Zusammenstoß</option>
+          <option>Diebstahl / Einbruch</option>
+          <option>Wasser- / Feuerschaden</option>
+          <option>Sturm / Hagel</option>
+          <option>Sonstiger Schaden</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Dringlichkeit</label>
+        <select class="form-select">
+          <option>Normal — innerhalb 48h</option>
+          <option>Dringend — heute noch</option>
+          <option>Notfall — sofort</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notiz (optional)</label>
+        <textarea class="form-textarea" placeholder="Zusätzliche Infos..."></textarea>
+      </div>
+    `
+  },
+  rueckruf: {
+    title: '📞 Rückruf eintragen',
+    html: `
+      <div class="form-group">
+        <label class="form-label">Kundenname</label>
+        <input class="form-input" type="text" placeholder="Vor- und Nachname">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Telefonnummer</label>
+        <input class="form-input" type="tel" placeholder="0375 ...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Thema</label>
+        <select class="form-select">
+          <option>Allgemeine Frage</option>
+          <option>Schadenmeldung</option>
+          <option>Vertragsänderung</option>
+          <option>Neues Angebot</option>
+          <option>Kündigung</option>
+          <option>Sonstiges</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Rückruf bis</label>
+        <select class="form-select">
+          <option>So schnell wie möglich</option>
+          <option>Heute Nachmittag</option>
+          <option>Morgen Vormittag</option>
+          <option>Diese Woche</option>
+        </select>
+      </div>
+    `
+  },
+  kunde: {
+    title: '👤 Neuen Kunden anlegen',
+    html: `
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Vorname</label>
+          <input class="form-input" type="text" placeholder="Max">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nachname</label>
+          <input class="form-input" type="text" placeholder="Mustermann">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Telefon</label>
+        <input class="form-input" type="tel" placeholder="0375 ...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">E-Mail</label>
+        <input class="form-input" type="email" placeholder="name@beispiel.de">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Gewünschte Versicherung</label>
+        <select class="form-select">
+          <option>KFZ</option>
+          <option>Hausrat</option>
+          <option>Haftpflicht</option>
+          <option>Leben / BU</option>
+          <option>Mehrere / Beratung</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Wie kam der Kontakt?</label>
+        <select class="form-select">
+          <option>Website-Anfrage</option>
+          <option>Telefonanruf</option>
+          <option>Empfehlung</option>
+          <option>Laufkundschaft</option>
+          <option>WhatsApp</option>
+        </select>
+      </div>
+    `
+  },
+  dokument: {
+    title: '📄 Dokument-Eingang',
+    html: `
+      <div class="form-group">
+        <label class="form-label">Kunde</label>
+        <input class="form-input" type="text" placeholder="Name suchen...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Dokumenttyp</label>
+        <select class="form-select">
+          <option>Personalausweis / Reisepass</option>
+          <option>Führerschein</option>
+          <option>KFZ-Schein / Fahrzeugbrief</option>
+          <option>Vorhandene Police</option>
+          <option>Schadensfotos</option>
+          <option>Rechnung / Kostenvoranschlag</option>
+          <option>Kündigung</option>
+          <option>Sonstiges Dokument</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Eingang via</label>
+        <select class="form-select">
+          <option>WhatsApp</option>
+          <option>E-Mail</option>
+          <option>Post / Persönlich</option>
+          <option>Dokument-Scanner (Website)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notiz</label>
+        <textarea class="form-textarea" placeholder="Was soll damit passieren?"></textarea>
+      </div>
+    `
+  }
+};
+
+function openModal(type) {
+  const m = MODALS[type];
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-title">${m.title}</div>
+    ${m.html}
+    <button class="btn-submit" onclick="submitModal('${type}')">Speichern & Eintragen</button>
+    <button class="btn-cancel" onclick="closeModal()">Abbrechen</button>
+  `;
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.remove('show');
+}
+
+function submitModal(type) {
+  const labels = { schaden:'Schaden eingetragen', rueckruf:'Rückruf notiert', kunde:'Kunde angelegt', dokument:'Dokument zugewiesen' };
+  const prios  = { schaden:'red', rueckruf:'yellow', kunde:'yellow', dokument:'yellow' };
+  const names  = { schaden:'Neuer Schadensfall', rueckruf:'Rückruf ausstehend', kunde:'Neuer Interessent', dokument:'Dokument prüfen' };
+  const metas  = {
+    schaden:'Gerade aufgenommen — Bearbeitung offen',
+    rueckruf:'Rückruf gewünscht — bitte melden',
+    kunde:'Erstberatung vereinbaren',
+    dokument:'Dokument eingegangen — prüfen'
+  };
+  const newTask = {
+    id: Date.now(), prio: prios[type],
+    name: names[type], meta: metas[type], action: 'done'
+  };
+  tasks.unshift(newTask);
+  saveTasks();
+  closeModal();
+  renderTasks(activeFilter);
+  showToast('✅ ' + labels[type]);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+renderTasks();
+</script>
+</body>
+</html>

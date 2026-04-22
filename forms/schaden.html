@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schaden melden — Richter Versicherungen</title>
+<style>
+:root {
+  --navy:   #1C2B4A;
+  --navy2:  #243460;
+  --gold:   #B8965A;
+  --green:  #27AE60;
+  --grn-bg: #EEF8F3;
+  --red:    #C0392B;
+  --red-bg: #FDF0EE;
+  --orange: #E67E22;
+  --org-bg: #FEF9F0;
+  --gray:   #6B7280;
+  --light:  #F7F6F3;
+  --border: #E5E7EB;
+  --white:  #FFFFFF;
+  --sans:   'Segoe UI', system-ui, sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased}
+body{background:var(--light);font-family:var(--sans);color:var(--navy);min-height:100vh}
+
+.header{background:var(--navy);padding:20px;text-align:center}
+.header-sub{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.header-title{font-size:20px;font-weight:700;color:var(--white)}
+.header-desc{font-size:13px;color:rgba(255,255,255,.6);margin-top:4px}
+
+.container{max-width:560px;margin:0 auto;padding:24px 16px 60px}
+
+/* PROGRESS */
+.progress-bar{background:var(--border);border-radius:4px;height:6px;margin-bottom:28px;overflow:hidden}
+.progress-fill{background:var(--gold);height:100%;border-radius:4px;transition:width .4s ease}
+
+/* CARD */
+.card{background:var(--white);border-radius:16px;padding:24px;border:1px solid var(--border);margin-bottom:16px}
+.card-title{font-size:19px;font-weight:800;color:var(--navy);margin-bottom:6px}
+.card-sub{font-size:14px;color:var(--gray);margin-bottom:20px;line-height:1.5}
+
+/* VERSICHERUNGSARTEN — CHIPS */
+.chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+.chip{
+  border:2px solid var(--border);border-radius:12px;padding:14px 12px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  cursor:pointer;transition:all .15s;text-align:center;background:var(--white);
+}
+.chip:hover{border-color:var(--gold);background:#FDFAF5}
+.chip.selected{border-color:var(--navy);background:var(--navy);color:var(--white)}
+.chip-icon{font-size:28px}
+.chip-label{font-size:13px;font-weight:700}
+.chip.selected .chip-label{color:var(--white)}
+
+/* DRINGLICHKEIT */
+.dring-grid{display:flex;flex-direction:column;gap:10px}
+.dring{
+  border:2px solid var(--border);border-radius:12px;padding:16px;
+  display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .15s;
+}
+.dring:hover{border-color:var(--gold)}
+.dring.selected.normal{border-color:var(--green);background:var(--grn-bg)}
+.dring.selected.urgent{border-color:var(--orange);background:var(--org-bg)}
+.dring.selected.notfall{border-color:var(--red);background:var(--red-bg)}
+.dring-icon{font-size:28px;flex-shrink:0}
+.dring-title{font-size:15px;font-weight:700;color:var(--navy)}
+.dring-sub{font-size:12px;color:var(--gray);margin-top:2px}
+
+/* SCHADENSARTEN */
+.schaden-list{display:flex;flex-direction:column;gap:8px}
+.schaden-item{
+  border:2px solid var(--border);border-radius:10px;padding:13px 16px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s;
+}
+.schaden-item:hover{border-color:var(--gold);background:#FDFAF5}
+.schaden-item.selected{border-color:var(--navy);background:#F0F3F8}
+.schaden-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px}
+.schaden-item.selected .schaden-check{background:var(--navy);border-color:var(--navy);color:white}
+
+/* FOTOS */
+.foto-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.foto-thumb{
+  aspect-ratio:1;border-radius:10px;overflow:hidden;position:relative;
+  background:var(--light);border:1px solid var(--border);
+}
+.foto-thumb img{width:100%;height:100%;object-fit:cover}
+.foto-thumb .remove{
+  position:absolute;top:4px;right:4px;background:var(--red);color:#fff;
+  border:none;border-radius:50%;width:22px;height:22px;font-size:13px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.foto-add{
+  aspect-ratio:1;border-radius:10px;border:2px dashed var(--border);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;cursor:pointer;background:var(--light);transition:all .2s;position:relative;
+}
+.foto-add:hover{border-color:var(--gold);background:#FDFAF5}
+.foto-add input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.foto-add-icon{font-size:24px}
+.foto-add-text{font-size:11px;color:var(--gray);font-weight:600}
+
+/* FORM */
+.form-group{margin-bottom:14px}
+.form-label{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;display:block}
+.form-input,.form-select,.form-textarea{
+  width:100%;padding:13px 16px;border:2px solid var(--border);border-radius:10px;
+  font-size:15px;font-family:var(--sans);color:var(--navy);background:var(--white);
+  -webkit-appearance:none;appearance:none;
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--gold)}
+.form-textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* BUTTONS */
+.btn-primary{
+  width:100%;padding:16px;background:var(--navy);color:var(--white);
+  border:none;border-radius:12px;font-size:16px;font-weight:700;
+  font-family:var(--sans);cursor:pointer;transition:background .2s;display:flex;
+  align-items:center;justify-content:center;gap:8px;
+}
+.btn-primary:hover{background:var(--navy2)}
+.btn-primary:disabled{background:var(--gray);cursor:not-allowed}
+.btn-back{
+  width:100%;padding:14px;background:transparent;color:var(--gray);
+  border:2px solid var(--border);border-radius:12px;font-size:15px;
+  font-family:var(--sans);cursor:pointer;margin-top:8px;
+}
+.btn-next{
+  width:100%;padding:15px;background:var(--navy);color:var(--white);
+  border:none;border-radius:12px;font-size:15px;font-weight:700;
+  font-family:var(--sans);cursor:pointer;margin-top:8px;
+}
+
+/* ERFOLG */
+.success{text-align:center;padding:16px}
+.success-icon{font-size:64px;margin-bottom:14px}
+.success-title{font-size:22px;font-weight:800;margin-bottom:8px}
+.success-sub{font-size:14px;color:var(--gray);line-height:1.6;margin-bottom:20px}
+.fallnummer{background:var(--light);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:20px}
+.fallnummer-label{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.fallnummer-value{font-size:20px;font-weight:800;font-family:monospace;letter-spacing:.1em}
+.next-steps{background:var(--light);border-radius:12px;padding:16px;text-align:left}
+.next-step{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;line-height:1.5}
+.next-step:last-child{border-bottom:none}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-sub">Versicherungsmakler</div>
+  <div class="header-title">Schaden melden</div>
+  <div class="header-desc">Silvio Richter · Zwickau</div>
+</header>
+
+<div class="container">
+  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:25%"></div></div>
+
+  <!-- SCHRITT 1: VERSICHERUNGSART -->
+  <div id="step1">
+    <div class="card">
+      <div class="card-title">Was ist betroffen?</div>
+      <div class="card-sub">Wählen Sie die betroffene Versicherung.</div>
+      <div class="chip-grid">
+        <div class="chip" onclick="selectChip(this,'KFZ')"><div class="chip-icon">🚗</div><div class="chip-label">KFZ / Auto</div></div>
+        <div class="chip" onclick="selectChip(this,'Hausrat')"><div class="chip-icon">🏠</div><div class="chip-label">Hausrat / Gebäude</div></div>
+        <div class="chip" onclick="selectChip(this,'Haftpflicht')"><div class="chip-icon">🤝</div><div class="chip-label">Haftpflicht</div></div>
+        <div class="chip" onclick="selectChip(this,'Leben')"><div class="chip-icon">❤️</div><div class="chip-label">Leben / BU</div></div>
+        <div class="chip" onclick="selectChip(this,'Rechtsschutz')"><div class="chip-icon">⚖️</div><div class="chip-label">Rechtsschutz</div></div>
+        <div class="chip" onclick="selectChip(this,'Sonstiges')"><div class="chip-icon">📋</div><div class="chip-label">Sonstiges</div></div>
+      </div>
+      <button class="btn-next" onclick="goStep(2)">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- SCHRITT 2: SCHADENSART + DRINGLICHKEIT -->
+  <div id="step2" style="display:none">
+    <div class="card">
+      <div class="card-title">Was ist passiert?</div>
+      <div class="card-sub">Mehrfachauswahl möglich.</div>
+      <div class="schaden-list" id="schadenList">
+        <div class="schaden-item" onclick="toggleSchaden(this)"><div class="schaden-check"></div><span>Unfall / Zusammenstoß</span></div>
+        <div class="schaden-item" onclick="toggleSchaden(this)"><div class="schaden-check"></div><span>Diebstahl / Einbruch</span></div>
+        <div class="schaden-item" onclick="toggleSchaden(this)"><div class="schaden-check"></div><span>Wasser- / Rohrschaden</span></div>
+        <div class="schaden-item" onclick="toggleSchaden(this)"><div class="schaden-check"></div><span>Feuer / Brandschaden</span></div>
+        <div class="schaden-item" onclick="toggleSchaden(this)"><div class="schaden-check"></div><span>Sturm / Hagel</span></div>
+        <div class="schaden-item" onclick="toggleSchaden(this)"><div class="schaden-check"></div><span>Glasbruch</span></div>
+        <div class="schaden-item" onclick="toggleSchaden(this)"><div class="schaden-check"></div><span>Vandalismusschaden</span></div>
+        <div class="schaden-item" onclick="toggleSchaden(this)"><div class="schaden-check"></div><span>Sonstiger Schaden</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Wie dringend?</div>
+      <div class="dring-grid">
+        <div class="dring normal" onclick="selectDring(this,'normal')">
+          <div class="dring-icon">🟢</div>
+          <div><div class="dring-title">Normal</div><div class="dring-sub">Rückmeldung innerhalb 48 Stunden</div></div>
+        </div>
+        <div class="dring urgent" onclick="selectDring(this,'urgent')">
+          <div class="dring-icon">🟡</div>
+          <div><div class="dring-title">Dringend</div><div class="dring-sub">Bitte heute noch melden</div></div>
+        </div>
+        <div class="dring notfall" onclick="selectDring(this,'notfall')">
+          <div class="dring-icon">🔴</div>
+          <div><div class="dring-title">Notfall</div><div class="dring-sub">Sofortige Hilfe erforderlich</div></div>
+        </div>
+      </div>
+      <button class="btn-next" onclick="goStep(3)" style="margin-top:16px">Weiter →</button>
+      <button class="btn-back" onclick="goStep(1)">← Zurück</button>
+    </div>
+  </div>
+
+  <!-- SCHRITT 3: FOTOS + DETAILS -->
+  <div id="step3" style="display:none">
+    <div class="card">
+      <div class="card-title">Fotos (optional)</div>
+      <div class="card-sub">Bis zu 5 Fotos vom Schaden. Hilft bei der schnelleren Bearbeitung.</div>
+      <div class="foto-grid" id="fotoGrid">
+        <div class="foto-add">
+          <input type="file" accept="image/*" capture="environment" onchange="addFoto(event)">
+          <div class="foto-add-icon">📷</div>
+          <div class="foto-add-text">Foto hinzufügen</div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:8px">
+        <label class="form-label">Schadensdatum</label>
+        <input class="form-input" type="date" id="schadenDatum">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Beschreibung (optional)</label>
+        <textarea class="form-textarea" id="beschreibung" placeholder="Was genau ist passiert? Je mehr Details, desto schneller können wir helfen."></textarea>
+      </div>
+      <button class="btn-next" onclick="goStep(4)">Weiter →</button>
+      <button class="btn-back" onclick="goStep(2)">← Zurück</button>
+    </div>
+  </div>
+
+  <!-- SCHRITT 4: KONTAKTDATEN -->
+  <div id="step4" style="display:none">
+    <div class="card">
+      <div class="card-title">Ihre Kontaktdaten</div>
+      <div class="card-sub">Damit Silvio Richter Sie erreichen kann.</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Vorname</label>
+          <input class="form-input" type="text" id="vorname" placeholder="Max">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nachname</label>
+          <input class="form-input" type="text" id="nachname" placeholder="Mustermann">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Telefon</label>
+        <input class="form-input" type="tel" id="telefon" placeholder="0375 ...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">E-Mail</label>
+        <input class="form-input" type="email" id="email" placeholder="name@beispiel.de">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Wann können wir Sie erreichen?</label>
+        <select class="form-select" id="rueckruf">
+          <option>Jederzeit</option>
+          <option>Morgens 8–12 Uhr</option>
+          <option>Nachmittags 13–17 Uhr</option>
+          <option>Nur per E-Mail</option>
+        </select>
+      </div>
+
+      <button class="btn-primary" id="btnSenden" onclick="absenden()">
+        <span>🚨</span> Schaden jetzt melden
+      </button>
+      <button class="btn-back" onclick="goStep(3)">← Zurück</button>
+    </div>
+  </div>
+
+  <!-- SCHRITT 5: ERFOLG -->
+  <div id="step5" style="display:none">
+    <div class="card">
+      <div class="success">
+        <div class="success-icon">✅</div>
+        <div class="success-title">Schaden gemeldet!</div>
+        <div class="success-sub">Silvio Richter wurde sofort benachrichtigt.<br>Sie erhalten eine Bestätigung per E-Mail.</div>
+        <div class="fallnummer">
+          <div class="fallnummer-label">Ihre Fallnummer</div>
+          <div class="fallnummer-value" id="fallnrDisplay"></div>
+        </div>
+        <div class="next-steps">
+          <div class="next-step"><span>⏱️</span><span id="naechsterKontakt">Silvio meldet sich innerhalb von 48 Stunden.</span></div>
+          <div class="next-step"><span>📞</span><span>Dringend? <a href="tel:0376042424" style="color:var(--navy);font-weight:600">037604 / 2424</a></span></div>
+          <div class="next-step"><span>💬</span><span>WhatsApp: <a href="https://wa.me/4937604242" style="color:var(--navy);font-weight:600">Direkte Nachricht</a></span></div>
+          <div class="next-step"><span>📄</span><span><a href="../scanner/" style="color:var(--navy);font-weight:600">Dokumente nachreichen</a> — Fotos, Rechnungen, etc.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const WORKER_URL = 'https://richter-automation.richter-makler.workers.dev';
+let selectedVersicherung = '';
+let selectedDringlichkeit = 'normal';
+let fotos = [];
+
+const STEPS = 5;
+function setProgress(n) {
+  document.getElementById('progress').style.width = (n/STEPS*100)+'%';
+}
+
+function goStep(n) {
+  for (let i=1;i<=STEPS;i++) {
+    const el = document.getElementById('step'+i);
+    if (el) el.style.display = i===n ? 'block' : 'none';
+  }
+  setProgress(n);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function selectChip(el, value) {
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedVersicherung = value;
+  updateSchadenList(value);
+}
+
+function updateSchadenList(typ) {
+  const lists = {
+    KFZ: ['Unfall / Zusammenstoß','Diebstahl / Fahrzeugklau','Glasbruch','Vandalismusschaden','Wildunfall','Parkschaden','Totalschaden'],
+    Hausrat: ['Einbruch / Diebstahl','Wasserschaden','Feuer / Brandschaden','Sturm / Hagel','Glasbruch','Vandalismus','Sonstiger Schaden'],
+    Haftpflicht: ['Personenschaden verursacht','Sachschaden verursacht','Mietsachschaden','Schlüsselverlust','Sonstiger Schaden'],
+    default: ['Unfall / Zusammenstoß','Diebstahl / Einbruch','Wasser- / Rohrschaden','Feuer / Brandschaden','Sturm / Hagel','Glasbruch','Sonstiger Schaden']
+  };
+  const items = lists[typ] || lists.default;
+  document.getElementById('schadenList').innerHTML = items.map(s =>
+    `<div class="schaden-item" onclick="toggleSchaden(this)"><div class="schaden-check"></div><span>${s}</span></div>`
+  ).join('');
+}
+
+function toggleSchaden(el) {
+  el.classList.toggle('selected');
+  el.querySelector('.schaden-check').textContent = el.classList.contains('selected') ? '✓' : '';
+}
+
+function selectDring(el, type) {
+  document.querySelectorAll('.dring').forEach(d=>d.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedDringlichkeit = type;
+}
+
+function addFoto(e) {
+  if (fotos.length >= 5) return;
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    fotos.push(ev.target.result);
+    renderFotos();
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeFoto(i) {
+  fotos.splice(i,1);
+  renderFotos();
+}
+
+function renderFotos() {
+  const grid = document.getElementById('fotoGrid');
+  let html = fotos.map((src,i) => `
+    <div class="foto-thumb">
+      <img src="${src}" alt="">
+      <button class="remove" onclick="removeFoto(${i})">×</button>
+    </div>
+  `).join('');
+  if (fotos.length < 5) {
+    html += `<div class="foto-add"><input type="file" accept="image/*" capture="environment" onchange="addFoto(event)"><div class="foto-add-icon">📷</div><div class="foto-add-text">Foto hinzufügen</div></div>`;
+  }
+  grid.innerHTML = html;
+}
+
+async function absenden() {
+  const vorname = document.getElementById('vorname').value.trim();
+  const nachname = document.getElementById('nachname').value.trim();
+  const telefon  = document.getElementById('telefon').value.trim();
+  const email    = document.getElementById('email').value.trim();
+
+  if (!vorname || !nachname || (!telefon && !email)) {
+    alert('Bitte Name und mindestens Telefon oder E-Mail angeben.');
+    return;
+  }
+
+  const btn = document.getElementById('btnSenden');
+  btn.disabled = true;
+  btn.innerHTML = '<span>⏳</span> Wird gesendet...';
+
+  const schaeden = [...document.querySelectorAll('.schaden-item.selected')].map(el=>el.querySelector('span').textContent);
+  const fallnr = 'SCH-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random()*9000)+1000);
+
+  // Nächsten Kontakt-Text anpassen je Dringlichkeit
+  const kontaktText = {
+    normal: 'Silvio meldet sich innerhalb von 48 Stunden.',
+    urgent: 'Silvio meldet sich noch heute bei Ihnen.',
+    notfall: '⚠️ Notfall erkannt — Silvio wird sofort benachrichtigt.'
+  };
+  document.getElementById('naechsterKontakt').textContent = kontaktText[selectedDringlichkeit];
+
+  try {
+    await fetch(WORKER_URL + '/schaden', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fallnr,
+        name: vorname + ' ' + nachname,
+        email, telefon,
+        versicherung: selectedVersicherung,
+        schaeden: schaeden.join(', '),
+        dringlichkeit: selectedDringlichkeit,
+        datum: document.getElementById('schadenDatum').value,
+        beschreibung: document.getElementById('beschreibung').value,
+        rueckruf: document.getElementById('rueckruf').value,
+        fotoAnzahl: fotos.length,
+        quelle: 'Website-Schadenmeldung'
+      })
+    });
+  } catch(e) { /* offline fallback */ }
+
+  document.getElementById('fallnrDisplay').textContent = fallnr;
+  goStep(5);
+}
+
+// Default Datum = heute
+document.getElementById('schadenDatum').value = new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>

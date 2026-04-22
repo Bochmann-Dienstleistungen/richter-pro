@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richter Pro — Kunden-Portal</title>
+<style>
+:root{--navy:#1C2B4A;--gold:#B8965A;--light:#F7F6F3;--border:#E5E7EB;--white:#fff;--sans:'Segoe UI',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--light);font-family:var(--sans);color:var(--navy);min-height:100vh}
+.header{background:var(--navy);padding:32px 20px;text-align:center}
+.header-sub{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.header-h1{font-size:26px;font-weight:800;color:#fff;margin-bottom:4px}
+.header-desc{font-size:14px;color:rgba(255,255,255,.6)}
+.container{max-width:480px;margin:0 auto;padding:28px 16px 60px}
+.section{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#6B7280;margin:24px 0 10px 2px}
+.tile{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;align-items:center;gap:16px;text-decoration:none;color:var(--navy);margin-bottom:10px;transition:all .15s}
+.tile:hover{border-color:var(--gold);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.07)}
+.tile-icon{font-size:36px;flex-shrink:0;width:52px;text-align:center}
+.tile-title{font-size:17px;font-weight:700;margin-bottom:3px}
+.tile-sub{font-size:13px;color:#6B7280}
+.tile.highlight{background:var(--navy);border-color:var(--navy)}
+.tile.highlight .tile-title{color:#fff}
+.tile.highlight .tile-sub{color:rgba(255,255,255,.6)}
+.footer{text-align:center;padding:24px 16px;font-size:13px;color:#6B7280;line-height:1.8}
+.footer a{color:var(--navy);font-weight:600;text-decoration:none}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="header-sub">Versicherungsmakler</div>
+  <div class="header-h1">Silvio Richter GmbH</div>
+  <div class="header-desc">Ihr Online-Service-Portal · Zwickau seit 1990</div>
+</header>
+<div class="container">
+
+  <div class="section">Schnelle Hilfe</div>
+
+  <a class="tile highlight" href="forms/schaden.html">
+    <div class="tile-icon">🚨</div>
+    <div><div class="tile-title">Schaden melden</div><div class="tile-sub" style="color:rgba(255,255,255,.6)">Online in 2 Minuten — ohne Anruf</div></div>
+  </a>
+
+  <a class="tile" href="scanner/">
+    <div class="tile-icon">📄</div>
+    <div><div class="tile-title">Dokument einreichen</div><div class="tile-sub">Foto oder Datei — KI erkennt automatisch</div></div>
+  </a>
+
+  <div class="section">Kontakt</div>
+
+  <a class="tile" href="tel:0376042424">
+    <div class="tile-icon">📞</div>
+    <div><div class="tile-title">037604 / 2424</div><div class="tile-sub">Mo/Di/Do 8–12 & 13–17 · Mi/Fr 8–12 Uhr</div></div>
+  </a>
+
+  <a class="tile" href="https://wa.me/4937604242">
+    <div class="tile-icon">💬</div>
+    <div><div class="tile-title">WhatsApp schreiben</div><div class="tile-sub">Auch außerhalb der Öffnungszeiten</div></div>
+  </a>
+
+</div>
+<footer class="footer">
+  Versicherungsmakler Richter GmbH<br>
+  Sportplatzweg 2 · 08058 Zwickau<br>
+  <a href="mailto:ga-richter@freenet.de">ga-richter@freenet.de</a>
+</footer>
+</body>
+</html>
