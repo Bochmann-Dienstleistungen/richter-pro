@@ -112,6 +112,19 @@ export default {
     // ── Anthropic Vision Proxy (für Scanner) ────────────────────
     if (path === '/scan' && request.method === 'POST') {
       if (!env.ANTHROPIC_KEY) return json({ error: 'ANTHROPIC_KEY not set' }, 500, origin);
+
+      // Rate Limiting: max 20 Scans pro IP pro Stunde
+      const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+      const rlKey = `rl:scan:${ip}:${Math.floor(Date.now() / 3600000)}`;
+      let rlCount = 0;
+      try {
+        const rlRaw = await env.RICHTER_KV.get(rlKey);
+        rlCount = rlRaw ? parseInt(rlRaw) : 0;
+        if (rlCount >= 20) {
+          return json({ error: 'Zu viele Anfragen. Bitte in einer Stunde erneut versuchen.' }, 429, origin);
+        }
+        await env.RICHTER_KV.put(rlKey, String(rlCount + 1), { expirationTtl: 3600 });
+      } catch { /* KV-Fehler → trotzdem durchlassen */ }
       let body;
       try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400, origin); }
       body.model      = 'claude-haiku-4-5-20251001';
