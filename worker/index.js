@@ -83,13 +83,30 @@ export default {
       }, 200, origin);
     }
 
-    // ── Dashboard-Daten ─────────────────────────────────────────
+    // ── Dashboard-Daten (live aus KV) ───────────────────────────
     if (path === '/dashboard' && request.method === 'GET') {
-      return json({
-        geoeffnet: isGeoeffnet(),
-        timestamp: new Date().toISOString(),
-        hinweis:   'Echte Daten kommen nach Make.com/Sheets-Anbindung',
-      }, 200, origin);
+      let cases = [];
+      try {
+        const raw = await env.RICHTER_KV.get('cases');
+        cases = raw ? JSON.parse(raw) : [];
+      } catch {}
+      return json({ geoeffnet: isGeoeffnet(), timestamp: new Date().toISOString(), cases }, 200, origin);
+    }
+
+    // ── Status-Update ────────────────────────────────────────────
+    if (path === '/status' && request.method === 'POST') {
+      let body2;
+      try { body2 = await request.json(); } catch { return json({ ok: false }, 400, origin); }
+      const { fallnr, status } = body2;
+      if (!fallnr || !status) return json({ ok: false, error: 'fallnr and status required' }, 400, origin);
+      try {
+        const raw = await env.RICHTER_KV.get('cases');
+        const cases = raw ? JSON.parse(raw) : [];
+        const idx = cases.findIndex(c => c.fallnr === fallnr);
+        if (idx !== -1) { cases[idx].status = status; cases[idx].updatedAt = new Date().toISOString(); }
+        await env.RICHTER_KV.put('cases', JSON.stringify(cases));
+      } catch(e) { return json({ ok: false, error: e.message }, 500, origin); }
+      return json({ ok: true }, 200, origin);
     }
 
     // ── Anthropic Vision Proxy (für Scanner) ────────────────────
@@ -151,6 +168,7 @@ export default {
 
       // Sheets/CRM
       await sheetsLog(env.SHEETS_WEBHOOK_URL, { typ: 'Lead', fallnr, name, email, telefon: phone, thema, rueckruf, nachricht, status: 'Neu', quelle: 'Website' }).catch(e => errors.push({ type: 'sheets', error: e.message }));
+      await kvSave(env, { typ: 'Lead', fallnr, name, email, telefon: phone, thema, rueckruf, status: 'Offen', createdAt: new Date().toISOString() });
 
       return json({ ok: errors.length === 0, fallnr, errors }, 200, origin);
     }
@@ -194,6 +212,7 @@ export default {
       }
 
       await sheetsLog(env.SHEETS_WEBHOOK_URL, { typ: 'Schaden', fallnr: fn, name, email, telefon, versicherung, schaeden, dringlichkeit, datum, status: 'Neu' }).catch(() => {});
+      await kvSave(env, { typ: 'Schaden', fallnr: fn, name, email, telefon, versicherung, schaeden, dringlichkeit, rueckruf, datum, status: 'Offen', createdAt: new Date().toISOString() });
 
       return json({ ok: errors.length === 0, fallnr: fn, errors }, 200, origin);
     }
@@ -223,6 +242,7 @@ export default {
       }
 
       await sheetsLog(env.SHEETS_WEBHOOK_URL, { typ: 'Dokument', fallnr: fn, name, email, telefon, docType, anlass, datum, status: 'Eingang' }).catch(() => {});
+      await kvSave(env, { typ: 'Dokument', fallnr: fn, name, email, telefon, docType, anlass, datum, status: 'Offen', createdAt: new Date().toISOString() });
 
       return json({ ok: errors.length === 0, fallnr: fn, errors }, 200, origin);
     }
@@ -316,7 +336,7 @@ async function sendEmail(apiKey, { to, toName, subject, html }) {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from:     'Versicherungsmakler Richter <noreply@mail.valoris-auftragsstruktur.de>',
+        from:     'Versicherungsmakler Richter <noreply@valoris-auftragsstruktur.de>',
         reply_to: 'ga-richter@freenet.de',
         to:       toName ? [`${toName} <${to}>`] : [to],
         subject, html,
@@ -325,6 +345,18 @@ async function sendEmail(apiKey, { to, toName, subject, html }) {
     const data = await res.json();
     return res.ok ? { ok: true, id: data.id } : { ok: false, error: data };
   } catch(e) { return { ok: false, error: e.message }; }
+}
+
+// ── CLOUDFLARE KV STORAGE ────────────────────────────────────────────────
+async function kvSave(env, entry) {
+  if (!env.RICHTER_KV) return;
+  try {
+    const raw = await env.RICHTER_KV.get('cases');
+    const cases = raw ? JSON.parse(raw) : [];
+    cases.unshift(entry);
+    if (cases.length > 200) cases.length = 200;
+    await env.RICHTER_KV.put('cases', JSON.stringify(cases));
+  } catch {}
 }
 
 // ── MAKE.COM / GOOGLE SHEETS ─────────────────────────────────────────────

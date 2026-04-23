@@ -3,5 +3,9 @@ main = "index.js"
 compatibility_date = "2024-09-23"
 account_id = "6c58dfa2a4b901d6f1031dbb1074175a"
 
+[[kv_namespaces]]
+binding = "RICHTER_KV"
+id = "5c3075140ea541c98784a594b228a3b1"
+
 [vars]
 SILVIO_EMAIL = "ga-richter@freenet.de"

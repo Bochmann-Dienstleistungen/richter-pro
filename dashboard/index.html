@@ -287,6 +287,8 @@ body { background: var(--light); font-family: var(--sans); color: var(--navy); m
 <div class="toast" id="toast"></div>
 
 <script>
+const WORKER = 'https://richter-automation.richter-makler.workers.dev';
+
 // ── ÖFFNUNGSZEITEN ──
 const OZ = { Mo:[[8,12],[13,17]], Di:[[8,12],[13,17]], Mi:[[8,12]], Do:[[8,12],[13,17]], Fr:[[8,12]] };
 const TAGE = ['So','Mo','Di','Mi','Do','Fr','Sa'];
@@ -319,41 +321,68 @@ function updateClock() {
 setInterval(updateClock, 30000);
 updateClock();
 
-// ── AUFGABEN (Demo-Daten — später via Worker) ──
-let tasks = JSON.parse(localStorage.getItem('rp_tasks') || 'null') || [
-  { id:1, prio:'red',    name:'Müller, Hans',   meta:'Schadenmeldung KFZ — wartet auf Rückruf',    action:'call' },
-  { id:2, prio:'red',    name:'Schmidt, Petra',  meta:'Police läuft in 3 Tagen ab',                 action:'call' },
-  { id:3, prio:'yellow', name:'Wagner, Klaus',   meta:'Dokument ausstehend: Führerschein',           action:'done' },
-  { id:4, prio:'yellow', name:'Bauer, Maria',    meta:'Angebot angefordert — Hausrat',               action:'done' },
-  { id:5, prio:'green',  name:'Lehmann, Gerd',   meta:'Jahresgespräch bestätigt ✓',                  action:'done' },
-];
-saveTasks();
+// ── LIVE-DATEN VOM WORKER ──
+let workerCases = [];
+let localTasks  = JSON.parse(localStorage.getItem('rp_local_tasks') || '[]');
 
-function saveTasks() { localStorage.setItem('rp_tasks', JSON.stringify(tasks)); }
+async function loadWorkerData() {
+  try {
+    const res  = await fetch(WORKER + '/dashboard');
+    const data = await res.json();
+    workerCases = (data.cases || []).map(c => ({
+      id:     c.fallnr,
+      fallnr: c.fallnr,
+      prio:   c.dringlichkeit === 'notfall' ? 'red' : c.status === 'Erledigt' ? 'green' : 'yellow',
+      name:   c.name || '—',
+      meta:   [c.typ, c.versicherung, c.schaeden || c.docType || c.thema].filter(Boolean).join(' · '),
+      telefon: c.telefon,
+      status:  c.status,
+      action:  c.status === 'Erledigt' ? 'done' : c.telefon ? 'call' : 'done',
+      source:  'worker',
+    }));
+  } catch { workerCases = []; }
+  renderTasks(activeFilter);
+}
+
+function getAllTasks() {
+  const wIds = new Set(workerCases.map(c => c.fallnr));
+  return [...workerCases, ...localTasks.filter(t => !wIds.has(t.fallnr))];
+}
+
+function saveLocal() { localStorage.setItem('rp_local_tasks', JSON.stringify(localTasks)); }
 
 function renderTasks(filter) {
+  const all  = getAllTasks();
+  const show = filter ? all.filter(t => t.prio === filter) : all;
   const list = document.getElementById('taskList');
-  const show = filter ? tasks.filter(t => t.prio === filter) : tasks;
-  list.innerHTML = show.map(t => `
-    <div class="task" id="task-${t.id}">
-      <div class="task-dot ${t.prio}"></div>
-      <div class="task-info">
-        <div class="task-name">${t.name}</div>
-        <div class="task-meta">${t.meta}</div>
+
+  if (show.length === 0) {
+    list.innerHTML = `<div style="text-align:center;padding:32px;color:#6B7280;font-size:14px">
+      ${filter ? 'Keine Einträge in dieser Kategorie' : 'Noch keine Vorgänge — alles ruhig ✅'}
+    </div>`;
+  } else {
+    list.innerHTML = show.map(t => `
+      <div class="task" id="task-${t.id}">
+        <div class="task-dot ${t.prio}"></div>
+        <div class="task-info">
+          <div class="task-name">${t.name}${t.fallnr ? ` <span style="font-size:11px;color:#B8965A;font-family:monospace">${t.fallnr}</span>` : ''}</div>
+          <div class="task-meta">${t.meta}</div>
+        </div>
+        ${t.action === 'call' && t.telefon
+          ? `<a href="tel:${t.telefon}" class="task-action call" onclick="markDone('${t.id}')">Anrufen</a>`
+          : `<button class="task-action done" onclick="markDone('${t.id}')" ${t.prio==='green'?'disabled style="opacity:.4"':''}>Erledigt</button>`
+        }
       </div>
-      ${t.action === 'call'
-        ? `<button class="task-action call" onclick="makeCall(${t.id})">Anrufen</button>`
-        : `<button class="task-action done" onclick="markDone(${t.id})">Erledigt</button>`
-      }
-    </div>
-  `).join('');
+    `).join('');
+  }
   updateCounts();
 }
 
 function updateCounts() {
-  document.getElementById('countRed').textContent    = tasks.filter(t=>t.prio==='red').length;
-  document.getElementById('countYellow').textContent = tasks.filter(t=>t.prio==='yellow').length;
-  document.getElementById('countGreen').textContent  = tasks.filter(t=>t.prio==='green').length;
+  const all = getAllTasks();
+  document.getElementById('countRed').textContent    = all.filter(t=>t.prio==='red').length;
+  document.getElementById('countYellow').textContent = all.filter(t=>t.prio==='yellow').length;
+  document.getElementById('countGreen').textContent  = all.filter(t=>t.prio==='green').length;
 }
 
 let activeFilter = null;
@@ -362,16 +391,30 @@ function filterTasks(prio) {
   renderTasks(activeFilter);
 }
 
-function markDone(id) {
-  tasks = tasks.map(t => t.id===id ? {...t, prio:'green', action:'done'} : t);
-  saveTasks(); renderTasks(activeFilter);
+async function markDone(id) {
+  // Worker-Fall: Status via API setzen
+  const wc = workerCases.find(c => c.id === id);
+  if (wc) {
+    wc.prio   = 'green';
+    wc.action = 'done';
+    wc.status = 'Erledigt';
+    fetch(WORKER + '/status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fallnr: id, status: 'Erledigt' })
+    }).catch(() => {});
+  } else {
+    // Lokaler Fall
+    localTasks = localTasks.map(t => t.id===id ? {...t, prio:'green', action:'done', status:'Erledigt'} : t);
+    saveLocal();
+  }
+  renderTasks(activeFilter);
   showToast('✅ Als erledigt markiert');
 }
 
-function makeCall(id) {
-  const t = tasks.find(t=>t.id===id);
-  showToast('📞 Anruf wird vorbereitet...');
-}
+// Alle 60 Sek. aktualisieren
+setInterval(loadWorkerData, 60000);
+loadWorkerData();
 
 // ── MODALS ──
 const MODALS = {
@@ -553,19 +596,15 @@ function closeModal() {
 function submitModal(type) {
   const labels = { schaden:'Schaden eingetragen', rueckruf:'Rückruf notiert', kunde:'Kunde angelegt', dokument:'Dokument zugewiesen' };
   const prios  = { schaden:'red', rueckruf:'yellow', kunde:'yellow', dokument:'yellow' };
-  const names  = { schaden:'Neuer Schadensfall', rueckruf:'Rückruf ausstehend', kunde:'Neuer Interessent', dokument:'Dokument prüfen' };
-  const metas  = {
-    schaden:'Gerade aufgenommen — Bearbeitung offen',
-    rueckruf:'Rückruf gewünscht — bitte melden',
-    kunde:'Erstberatung vereinbaren',
-    dokument:'Dokument eingegangen — prüfen'
-  };
+  const inputs = document.getElementById('modalContent').querySelectorAll('input,select,textarea');
+  const vals   = [...inputs].map(el => el.value).filter(Boolean);
   const newTask = {
-    id: Date.now(), prio: prios[type],
-    name: names[type], meta: metas[type], action: 'done'
+    id: 'LOCAL-' + Date.now(), prio: prios[type], source: 'local',
+    name: vals[0] || type, meta: vals.slice(1).join(' · ') || 'Manuell eingetragen',
+    action: 'done', status: 'Offen'
   };
-  tasks.unshift(newTask);
-  saveTasks();
+  localTasks.unshift(newTask);
+  saveLocal();
   closeModal();
   renderTasks(activeFilter);
   showToast('✅ ' + labels[type]);
