@@ -204,6 +204,7 @@ body { background: var(--light); font-family: var(--sans); color: var(--navy); m
 
   <div class="date-bar">
     <strong id="dateDisplay"></strong> &nbsp;·&nbsp; <span id="timeDisplay"></span>
+    &nbsp;·&nbsp; <span id="freshness" style="color:#9CA3AF;font-size:12px">Lädt...</span>
   </div>
 
   <!-- AMPEL -->
@@ -412,7 +413,23 @@ async function markDone(id) {
   showToast('✅ Als erledigt markiert');
 }
 
-// Alle 60 Sek. aktualisieren
+// Frische-Indikator
+let lastLoad = null;
+function updateFreshness() {
+  if (!lastLoad) return;
+  const sek = Math.round((Date.now() - lastLoad) / 1000);
+  const el = document.getElementById('freshness');
+  if (el) el.textContent = sek < 10 ? 'Gerade aktualisiert' : `Vor ${sek} Sek. aktualisiert`;
+}
+setInterval(updateFreshness, 5000);
+
+const _origLoad = loadWorkerData;
+async function loadWorkerData() {
+  await _origLoad();
+  lastLoad = Date.now();
+  updateFreshness();
+}
+
 setInterval(loadWorkerData, 60000);
 loadWorkerData();
 
