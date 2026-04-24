@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richter — QR-Codes</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--navy:#1C2B4A;--gold:#B8965A;--light:#F7F6F3;--border:#E5E7EB;--white:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--light);font-family:'Segoe UI',system-ui,sans-serif;color:var(--navy);padding:32px 16px}
+h1{text-align:center;font-size:22px;margin-bottom:6px}
+.sub{text-align:center;font-size:13px;color:#6B7280;margin-bottom:32px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;max-width:860px;margin:0 auto}
+.card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:24px;text-align:center}
+.card-icon{font-size:36px;margin-bottom:12px}
+.card-title{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:4px}
+.card-url{font-size:11px;color:#6B7280;margin-bottom:16px;font-family:monospace;word-break:break-all}
+.qr-wrap{display:flex;justify-content:center;margin-bottom:16px}
+.qr-wrap canvas,.qr-wrap img{border-radius:8px}
+.btn{display:inline-block;padding:10px 20px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;font-family:inherit}
+.btn:hover{background:#243460}
+.hint{font-size:11px;color:#6B7280;margin-top:10px;line-height:1.5}
+@media print{
+  body{padding:0;background:#fff}
+  .btn{display:none}
+  .card{break-inside:avoid;border:1px solid #ccc}
+}
+</style>
+</head>
+<body>
+
+<h1>Richter — QR-Codes</h1>
+<p class="sub">Druckfertig · Für Visitenkarte, Bürotür und Briefköpfe</p>
+
+<div class="grid">
+  <div class="card">
+    <div class="card-icon">🏠</div>
+    <div class="card-title">Kunden-Portal</div>
+    <div class="card-url">richter-pro/</div>
+    <div class="qr-wrap" id="qr1"></div>
+    <button class="btn" onclick="download('qr1','richter-portal')">⬇ PNG speichern</button>
+    <div class="hint">Überall als Einstieg<br>Visitenkarte · Briefbogen</div>
+  </div>
+
+  <div class="card">
+    <div class="card-icon">🚨</div>
+    <div class="card-title">Schaden melden</div>
+    <div class="card-url">richter-pro/forms/schaden.html</div>
+    <div class="qr-wrap" id="qr2"></div>
+    <button class="btn" onclick="download('qr2','richter-schaden')">⬇ PNG speichern</button>
+    <div class="hint">Bürotür · Wartezimmer<br>KFZ-Schadensberichte</div>
+  </div>
+
+  <div class="card">
+    <div class="card-icon">📄</div>
+    <div class="card-title">Dokument einreichen</div>
+    <div class="card-url">richter-pro/scanner/</div>
+    <div class="qr-wrap" id="qr3"></div>
+    <button class="btn" onclick="download('qr3','richter-scanner')">⬇ PNG speichern</button>
+    <div class="hint">Briefe an Kunden<br>Schriftliche Korrespondenz</div>
+  </div>
+</div>
+
+<p style="text-align:center;margin-top:32px;font-size:12px;color:#9CA3AF">
+  Strg+P / ⌘+P zum Drucken aller drei QR-Codes
+</p>
+
+<script>
+const BASE = 'https://bochmann-dienstleistungen.github.io';
+const URLS = [
+  BASE + '/richter-pro/',
+  BASE + '/richter-pro/forms/schaden.html',
+  BASE + '/richter-pro/scanner/',
+];
+
+['qr1','qr2','qr3'].forEach((id, i) => {
+  new QRCode(document.getElementById(id), {
+    text: URLS[i],
+    width: 180,
+    height: 180,
+    colorDark: '#1C2B4A',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H,
+  });
+});
+
+function download(id, name) {
+  const canvas = document.querySelector('#' + id + ' canvas');
+  if (!canvas) { alert('QR-Code noch nicht geladen.'); return; }
+  const a = document.createElement('a');
+  a.download = name + '.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+</script>
+</body>
+</html>
