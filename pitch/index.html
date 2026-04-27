@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richter Pro — Ihre digitale Assistenz</title>
+<style>
+:root{--navy:#1C2B4A;--gold:#B8965A;--light:#F7F6F3;--border:#E5E7EB;--white:#fff;--green:#27AE60;--sans:'Segoe UI',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--light);font-family:var(--sans);color:var(--navy)}
+
+.hero{background:var(--navy);padding:56px 20px 48px;text-align:center}
+.hero-label{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.hero-h1{font-size:32px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:12px}
+.hero-sub{font-size:16px;color:rgba(255,255,255,.6);max-width:480px;margin:0 auto 28px;line-height:1.6}
+.hero-badges{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.badge{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:7px 16px;font-size:13px;color:rgba(255,255,255,.8);display:flex;align-items:center;gap:6px}
+
+.container{max-width:600px;margin:0 auto;padding:40px 16px 60px}
+.section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#9CA3AF;margin-bottom:16px}
+
+/* PROBLEM/LÖSUNG */
+.pain-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:40px}
+.pain{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px}
+.pain-icon{font-size:24px;flex-shrink:0;margin-top:2px}
+.pain-before{font-size:14px;color:#9CA3AF;text-decoration:line-through;margin-bottom:4px}
+.pain-after{font-size:15px;font-weight:700;color:var(--navy)}
+
+/* MODULE */
+.module-grid{display:flex;flex-direction:column;gap:12px;margin-bottom:40px}
+.module{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;gap:16px;align-items:flex-start}
+.module-icon{font-size:32px;flex-shrink:0;width:48px;text-align:center}
+.module-title{font-size:16px;font-weight:800;color:var(--navy);margin-bottom:4px}
+.module-desc{font-size:13px;color:#6B7280;line-height:1.6}
+.module-tag{display:inline-block;background:#EEF8F3;color:var(--green);font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;margin-top:6px}
+
+/* ZAHLEN */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:40px}
+.stat{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px 12px;text-align:center}
+.stat-num{font-size:28px;font-weight:800;color:var(--navy);line-height:1}
+.stat-label{font-size:12px;color:#6B7280;margin-top:6px;line-height:1.4}
+
+/* ABLAUF */
+.flow{display:flex;flex-direction:column;gap:0;margin-bottom:40px}
+.flow-step{display:flex;gap:16px;align-items:flex-start}
+.flow-left{display:flex;flex-direction:column;align-items:center;width:40px;flex-shrink:0}
+.flow-dot{width:36px;height:36px;border-radius:50%;background:var(--navy);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.flow-line{width:2px;height:32px;background:var(--border);margin:4px 0}
+.flow-content{padding:6px 0 28px}
+.flow-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.flow-desc{font-size:13px;color:#6B7280;line-height:1.6}
+
+/* CTA */
+.cta-box{background:var(--navy);border-radius:20px;padding:32px 24px;text-align:center}
+.cta-title{font-size:22px;font-weight:800;color:#fff;margin-bottom:10px}
+.cta-sub{font-size:14px;color:rgba(255,255,255,.6);margin-bottom:24px;line-height:1.6}
+.cta-btns{display:flex;flex-direction:column;gap:10px}
+.btn-gold{background:var(--gold);color:#fff;border:none;border-radius:12px;padding:16px;font-size:16px;font-weight:700;text-decoration:none;display:block;text-align:center}
+.btn-outline{background:transparent;color:rgba(255,255,255,.7);border:1.5px solid rgba(255,255,255,.2);border-radius:12px;padding:14px;font-size:15px;font-weight:600;text-decoration:none;display:block;text-align:center}
+
+.footer{text-align:center;padding:24px;font-size:12px;color:#9CA3AF}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-label">Exklusiv für Silvio Richter GmbH</div>
+  <div class="hero-h1">Ihr digitales Büro.<br>24 Stunden. Automatisch.</div>
+  <div class="hero-sub">Kunden melden Schäden, reichen Dokumente ein und erhalten sofort Antworten — auch wenn Sie im Termin sind oder schlafen.</div>
+  <div class="hero-badges">
+    <div class="badge">✅ Sofort einsatzbereit</div>
+    <div class="badge">🔒 DSGVO-konform</div>
+    <div class="badge">📱 Smartphone-optimiert</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- VORHER / NACHHER -->
+  <div class="section-label">Was sich ändert</div>
+  <div class="pain-grid">
+    <div class="pain">
+      <div class="pain-icon">📞</div>
+      <div>
+        <div class="pain-before">Kunde ruft an, Sie sind im Termin → Rückruf vergessen</div>
+        <div class="pain-after">Kunde meldet Schaden online → Sie bekommen sofort eine strukturierte E-Mail</div>
+      </div>
+    </div>
+    <div class="pain">
+      <div class="pain-icon">📄</div>
+      <div>
+        <div class="pain-before">Dokumente per Post / WhatsApp-Foto → Chaos im Posteingang</div>
+        <div class="pain-after">Kunde scannt per Smartphone → KI erkennt Typ automatisch → strukturiert bei Ihnen</div>
+      </div>
+    </div>
+    <div class="pain">
+      <div class="pain-icon">🌙</div>
+      <div>
+        <div class="pain-before">Außerhalb der Öffnungszeiten: keine Betreuung</div>
+        <div class="pain-after">KI-Assistent antwortet 24/7 auf WhatsApp — Sie sehen alles am nächsten Morgen</div>
+      </div>
+    </div>
+    <div class="pain">
+      <div class="pain-icon">📋</div>
+      <div>
+        <div class="pain-before">Offene Fälle im Kopf behalten oder auf Zettel notieren</div>
+        <div class="pain-after">Alle Fälle live im Dashboard — Ampelsystem, Status auf Erledigt setzen per Klick</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULE -->
+  <div class="section-label">Was das System kann</div>
+  <div class="module-grid">
+    <div class="module">
+      <div class="module-icon">🚨</div>
+      <div>
+        <div class="module-title">Digitale Schadenmeldung</div>
+        <div class="module-desc">Kunde füllt ein geführtes 4-Schritt-Formular aus — Versicherungsart, Schadenstyp, Fotos, Kontakt. Sie bekommen sofort eine vollständige E-Mail inkl. Rückruf-Button. Kunde bekommt automatisch eine Bestätigung.</div>
+        <span class="module-tag">✓ Live seit April 2026</span>
+      </div>
+    </div>
+    <div class="module">
+      <div class="module-icon">📄</div>
+      <div>
+        <div class="module-title">KI-Dokumenten-Scanner</div>
+        <div class="module-desc">Kunde fotografiert Police, Ausweis, Rechnung oder Kündigung. Die KI erkennt automatisch Typ, Name, Versicherung, Kennzeichen und Betrag. Das Dokument landet strukturiert bei Ihnen — inkl. Bild.</div>
+        <span class="module-tag">✓ KI-Erkennung mit 95%+ Genauigkeit</span>
+      </div>
+    </div>
+    <div class="module">
+      <div class="module-icon">📊</div>
+      <div>
+        <div class="module-title">Mitarbeiter-Dashboard</div>
+        <div class="module-desc">Ampelsystem: Rot (Notfall), Gelb (offen), Grün (erledigt). Alle Fälle live, nach Dringlichkeit sortiert. Status per Klick auf Erledigt setzen. Auch für Ihre Bürokraft verständlich bedienbar.</div>
+        <span class="module-tag">✓ Live — lädt alle 60 Sekunden</span>
+      </div>
+    </div>
+    <div class="module">
+      <div class="module-icon">💬</div>
+      <div>
+        <div class="module-title">WhatsApp KI-Assistent</div>
+        <div class="module-desc">Kunden schreiben auf WhatsApp — auch nachts. Die KI antwortet sofort mit Öffnungszeiten, Links zum Schadensformular oder Dokumenten-Scanner. Sie werden bei Anfragen außerhalb der Bürozeit benachrichtigt.</div>
+        <span class="module-tag">⏳ Aktivierung in Vorbereitung</span>
+      </div>
+    </div>
+    <div class="module">
+      <div class="module-icon">📈</div>
+      <div>
+        <div class="module-title">Automatisches CRM</div>
+        <div class="module-desc">Jede Anfrage, jeder Schaden, jedes Dokument landet automatisch in Google Sheets — mit Timestamp, Fallnummer, Kontaktdaten und Status. Kein manuelles Eintragen mehr.</div>
+        <span class="module-tag">✓ Google Sheets live verknüpft</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZAHLEN -->
+  <div class="section-label">In Zahlen</div>
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">2 Min</div>
+      <div class="stat-label">Schadenmeldung ohne Anruf</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">24/7</div>
+      <div class="stat-label">Erreichbarkeit für Kunden</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">0 €</div>
+      <div class="stat-label">Laufende Server­kosten</div>
+    </div>
+  </div>
+
+  <!-- WIE ES LÄUFT -->
+  <div class="section-label">Wie eine Schadenmeldung abläuft</div>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot">1</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="flow-title">Kunde scannt QR-Code</div>
+        <div class="flow-desc">z.B. von Ihrer Visitenkarte oder Bürotür — öffnet direkt das Formular, kein App-Download, kein Login</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot">2</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="flow-title">Formular ausfüllen — 2 Minuten</div>
+        <div class="flow-desc">Versicherungsart, Schadenstyp, bis zu 5 Fotos, Rückrufzeit — geführt, ohne Tippfehler-Risiko</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot">3</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="flow-title">Sie erhalten sofort eine E-Mail</div>
+        <div class="flow-desc">Strukturierte Übersicht mit Fallnummer, Anruf-Button und allen Daten — direkt auf ga-richter@freenet.de</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot">4</div><div class="flow-line"></div></div>
+      <div class="flow-content">
+        <div class="flow-title">Kunde bekommt Bestätigung</div>
+        <div class="flow-desc">Automatische E-Mail mit Fallnummer und Link zum Nachreichen weiterer Dokumente</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-left"><div class="flow-dot">5</div></div>
+      <div class="flow-content">
+        <div class="flow-title">Fall im Dashboard auf Erledigt</div>
+        <div class="flow-desc">Ein Klick — Fall ist grün, aus der Ampel raus, im CRM aktualisiert</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-box">
+    <div class="cta-title">Bereit zum Start</div>
+    <div class="cta-sub">Das System läuft bereits — für Sie eingerichtet, getestet und DSGVO-konform. Schauen Sie sich alles live an.</div>
+    <div class="cta-btns">
+      <a href="../" class="btn-gold">🏠 Zum Kunden-Portal →</a>
+      <a href="../forms/schaden.html" class="btn-outline">🚨 Schadenmeldung testen</a>
+      <a href="../scanner/" class="btn-outline">📄 Scanner testen</a>
+      <a href="../dashboard/" class="btn-outline">📊 Dashboard öffnen</a>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Erstellt von VALORIS Webdesign & SEO · Zwickau · valoris-auftragsstruktur.de
+</div>
+
+</body>
+</html>
